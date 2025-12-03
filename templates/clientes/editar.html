@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Cliente - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-user-edit me-2"></i>Editar Cliente</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'detalle_cliente' cliente.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Cancelar
+        </a>
+    </div>
+</div>
+
+<!-- Mostrar mensajes de error o éxito -->
+{% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="card-title mb-0">Editar Información del Cliente: {{ usuario.get_full_name }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <h5 class="mb-3"><i class="fas fa-user-circle me-2"></i>Información de Usuario</h5>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de Usuario <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="username" 
+                               value="{{ usuario.username }}" required
+                               placeholder="Ej: jperez">
+                        <div class="form-text">Nombre para iniciar sesión en el sistema.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="email" 
+                               value="{{ usuario.email }}" required
+                               placeholder="Ej: juan.perez@email.com">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Nombres</label>
+                        <input type="text" class="form-control" name="first_name" 
+                               value="{{ usuario.first_name }}"
+                               placeholder="Ej: Juan">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" name="last_name" 
+                               value="{{ usuario.last_name }}"
+                               placeholder="Ej: Pérez">
+                    </div>
+                </div>
+            </div>
+            
+            <h5 class="mb-3"><i class="fas fa-id-card me-2"></i>Información del Cliente</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Cédula de Identidad <span class="text-danger">*</span></label>
+                        {{ cliente_form.cedula_identidad }}
+                        {% if cliente_form.cedula_identidad.errors %}
+                            <div class="text-danger small">{{ cliente_form.cedula_identidad.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono <span class="text-danger">*</span></label>
+                        {{ cliente_form.telefono }}
+                        {% if cliente_form.telefono.errors %}
+                            <div class="text-danger small">{{ cliente_form.telefono.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label">Dirección <span class="text-danger">*</span></label>
+                        {{ cliente_form.direccion }}
+                        {% if cliente_form.direccion.errors %}
+                            <div class="text-danger small">{{ cliente_form.direccion.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Dirección completa del cliente.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Licencia de Conducir <span class="text-danger">*</span></label>
+                        {{ cliente_form.licencia_conducir }}
+                        {% if cliente_form.licencia_conducir.errors %}
+                            <div class="text-danger small">{{ cliente_form.licencia_conducir.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Vencimiento Licencia <span class="text-danger">*</span></label>
+                        {{ cliente_form.fecha_vencimiento_licencia }}
+                        {% if cliente_form.fecha_vencimiento_licencia.errors %}
+                            <div class="text-danger small">{{ cliente_form.fecha_vencimiento_licencia.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Fecha cuando vence la licencia de conducir.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Validez de Licencia</label>
+                        <div class="form-check mt-2">
+                            {{ cliente_form.licencia_valida }}
+                            <label class="form-check-label">
+                                Licencia vigente
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Estado del Cliente</label>
+                        <div class="form-check mt-2">
+                            {{ cliente_form.activo }}
+                            <label class="form-check-label">
+                                Cliente activo en el sistema
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                <a href="{% url 'detalle_cliente' cliente.id %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Añadir estilo para los campos de fecha -->
+<style>
+input[type="date"] {
+    height: 38px;
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+</style>
+{% endblock %}

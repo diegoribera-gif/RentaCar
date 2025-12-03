@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Empleado - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-user-edit me-2"></i>Editar Empleado</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'detalle_empleado' empleado.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Cancelar
+        </a>
+    </div>
+</div>
+
+<!-- Mostrar mensajes de error o éxito -->
+{% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="card-title mb-0">Editar Empleado: {{ usuario.get_full_name }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-warning border-bottom pb-2 mb-3">Información de Usuario</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Usuario <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="username" 
+                                       value="{{ usuario.username }}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="email" 
+                                       value="{{ usuario.email }}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Nombres</label>
+                                <input type="text" class="form-control" name="first_name" 
+                                       value="{{ usuario.first_name }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Apellidos</label>
+                                <input type="text" class="form-control" name="last_name" 
+                                       value="{{ usuario.last_name }}">
+                            </div>
+
+                            <div class="mb-3">
+    <label class="form-label">Nueva Contraseña (opcional)</label>
+    <input type="password" class="form-control" name="password1">
+    <div class="form-text">Dejar en blanco para mantener la contraseña actual.</div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Confirmar Nueva Contraseña</label>
+    <input type="password" class="form-control" name="password2">
+</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-warning border-bottom pb-2 mb-3">Información del Empleado</h6>
+                            
+                            <!-- Solo los campos que YA tienes en tu formulario -->
+                            {% for field in empleado_form %}
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small">{{ field.errors }}</div>
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                        <div class="form-text">{{ field.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <a href="{% url 'detalle_empleado' empleado.id %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

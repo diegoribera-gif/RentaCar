@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">Confirmar Activación</h5>
+            </div>
+            <div class="card-body text-center">
+                <i class="fas fa-user-check fa-3x text-success mb-3"></i>
+                <h4>¿Activar Empleado?</h4>
+                <p>Vas a activar al empleado: <strong>{{ empleado.usuario.get_full_name }}</strong></p>
+                <p>El empleado podrá acceder al sistema nuevamente.</p>
+                
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Sí, Activar</button>
+                        <a href="{% url 'lista_empleados' %}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

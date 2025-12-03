@@ -1,0 +1,467 @@
+{% extends 'base.html' %}
+
+{% block title %}Resultado del Reporte - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-chart-bar me-2"></i>Resultado del Reporte</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'reportes' %}" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i>Nuevo Reporte
+        </a>
+        <form method="post" action="{% url 'reportes' %}" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="tipo" value="{{ tipo }}">
+            <input type="hidden" name="fecha_inicio" value="{{ request.POST.fecha_inicio|default:'' }}">
+            <input type="hidden" name="fecha_fin" value="{{ request.POST.fecha_fin|default:'' }}">
+            <input type="hidden" name="formato" value="pdf">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-1"></i>Descargar PDF
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>Reporte {{ tipo|title }}</strong> - 
+    Generado el: {{ datos.fecha_generacion|default:"Fecha no disponible" }}
+    {% if datos.periodo %}
+    <br>Período: {{ datos.periodo }}
+    {% endif %}
+</div>
+
+<!-- CONTENIDO ESPECÍFICO SEGÚN TIPO DE REPORTE -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    {% if tipo == 'FINANCIERO' %}
+                    <i class="fas fa-dollar-sign me-2"></i>Reporte Financiero
+                    {% elif tipo == 'RESERVAS' %}
+                    <i class="fas fa-calendar-alt me-2"></i>Reporte de Reservas
+                    {% elif tipo == 'VEHICULOS' %}
+                    <i class="fas fa-car me-2"></i>Reporte de Vehículos
+                    {% elif tipo == 'CLIENTES' %}
+                    <i class="fas fa-users me-2"></i>Reporte de Clientes
+                    {% else %}
+                    <i class="fas fa-chart-bar me-2"></i>Reporte General
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                
+                <!-- REPORTE FINANCIERO -->
+                {% if tipo == 'FINANCIERO' %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">Resumen Financiero</h6>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th>Total de Ingresos:</th>
+                                        <td class="text-success h5">Bs. {{ datos.total_ingresos|default:0|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total de Reservas:</th>
+                                        <td>{{ datos.total_reservas|default:0 }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">Reservas por Tipo de Vehículo</h6>
+                                {% if datos.reservas_por_tipo %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Tipo</th>
+                                                <th>Cantidad</th>
+                                                <th>Total (Bs.)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in datos.reservas_por_tipo %}
+                                            <tr>
+                                                <td>{{ item.vehiculo__tipo|default:"Desconocido" }}</td>
+                                                <td>{{ item.cantidad|default:0 }}</td>
+                                                <td>Bs. {{ item.total|default:0|floatformat:2 }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p class="text-muted">No hay datos disponibles</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if datos.reservas_detalle %}
+                <div class="mt-4">
+                    <h6>Detalle de Reservas</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reserva in datos.reservas_detalle %}
+                                <tr>
+                                    <td>{{ reserva.codigo_reserva }}</td>
+                                    <td>{{ reserva.cliente }}</td>
+                                    <td>{{ reserva.vehiculo }}</td>
+                                    <td>{{ reserva.fecha_reserva }}</td>
+                                    <td>Bs. {{ reserva.precio_total|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- REPORTE DE RESERVAS -->
+                {% elif tipo == 'RESERVAS' %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">Estadísticas de Reservas</h6>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th>Total de Reservas:</th>
+                                        <td class="h5">{{ datos.total_reservas|default:0 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Tasa de Ocupación:</th>
+                                        <td>{{ datos.tasa_ocupacion|default:0|floatformat:2 }}%</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">Reservas por Estado</h6>
+                                {% if datos.reservas_por_estado %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Estado</th>
+                                                <th>Cantidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in datos.reservas_por_estado %}
+                                            <tr>
+                                                <td>{{ item.estado }}</td>
+                                                <td>{{ item.total }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p class="text-muted">No hay datos disponibles</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if datos.reservas_por_vehiculo %}
+                <div class="mt-4">
+                    <h6>Reservas por Vehículo (Top 10)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Vehículo</th>
+                                    <th>Reservas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in datos.reservas_por_vehiculo %}
+                                <tr>
+                                    <td>{{ item.vehiculo__marca }} {{ item.vehiculo__modelo }}</td>
+                                    <td>{{ item.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- REPORTE DE VEHÍCULOS -->
+                {% elif tipo == 'VEHICULOS' %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Total Vehículos</h6>
+                                <h2 class="text-primary">{{ datos.total_vehiculos|default:0 }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Disponibles</h6>
+                                <h2 class="text-success">{{ datos.vehiculos_disponibles|default:0 }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">En Mantenimiento</h6>
+                                <h2 class="text-warning">
+                                    {% for item in datos.vehiculos_por_estado %}
+                                        {% if item.estado == 'MANTENIMIENTO' %}
+                                            {{ item.total }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Vehículos por Tipo</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if datos.vehiculos_por_tipo %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Tipo</th>
+                                                <th>Cantidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in datos.vehiculos_por_tipo %}
+                                            <tr>
+                                                <td>{{ item.tipo|default:"Desconocido" }}</td>
+                                                <td>{{ item.total }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p class="text-muted">No hay datos disponibles</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Vehículos Más Rentados</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if datos.vehiculos_mas_rentados %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Vehículo</th>
+                                                <th>Placa</th>
+                                                <th>Reservas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in datos.vehiculos_mas_rentados %}
+                                            <tr>
+                                                <td>{{ item.marca }} {{ item.modelo }}</td>
+                                                <td>{{ item.placa }}</td>
+                                                <td>{{ item.num_reservas }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p class="text-muted">No hay datos disponibles</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if datos.ingresos_por_vehiculo %}
+                <div class="mt-4">
+                    <h6>Vehículos con Más Ingresos</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Vehículo</th>
+                                    <th>Placa</th>
+                                    <th>Ingresos (Bs.)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in datos.ingresos_por_vehiculo %}
+                                <tr>
+                                    <td>{{ item.marca }} {{ item.modelo }}</td>
+                                    <td>{{ item.placa }}</td>
+                                    <td>Bs. {{ item.total_ingresos|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- REPORTE DE CLIENTES -->
+                {% elif tipo == 'CLIENTES' %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Total Clientes</h6>
+                                <h2 class="text-primary">{{ datos.total_clientes|default:0 }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Licencia Válida</h6>
+                                <h2 class="text-success">{{ datos.clientes_con_licencia_valida|default:0 }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                {% if datos.clientes_mas_frecuentes %}
+                <div class="mt-4">
+                    <h6>Clientes Más Frecuentes (Top 10)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Cédula</th>
+                                    <th>Reservas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in datos.clientes_mas_frecuentes %}
+                                <tr>
+                                    <td>{{ item.nombre }}</td>
+                                    <td>{{ item.cedula }}</td>
+                                    <td>{{ item.num_reservas }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+               {% if datos.clientes_por_fecha_registro %}
+<div class="mt-4">
+    <h6>Clientes por Fecha de Registro</h6>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Mes/Año</th>
+                    <th>Nuevos Clientes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in datos.clientes_por_fecha_registro %}
+                <tr>
+                    <td>{{ item.mes }}</td>
+                    <td>{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+                
+                <!-- TIPO DE REPORTE DESCONOCIDO -->
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Tipo de reporte no reconocido o datos no disponibles.
+                </div>
+                
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">Datos Crudos del Reporte</h6>
+                        <pre class="bg-dark text-light p-3 rounded">{{ datos|pprint }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botones de acción -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <a href="{% url 'reportes' %}" class="btn btn-secondary w-100">
+            <i class="fas fa-undo me-2"></i>Generar Otro Reporte
+        </a>
+    </div>
+    <div class="col-md-6">
+        <form method="post" action="{% url 'reportes' %}" class="w-100">
+            {% csrf_token %}
+            <input type="hidden" name="tipo" value="{{ tipo }}">
+            <input type="hidden" name="fecha_inicio" value="{{ request.POST.fecha_inicio|default:'' }}">
+            <input type="hidden" name="fecha_fin" value="{{ request.POST.fecha_fin|default:'' }}">
+            <input type="hidden" name="formato" value="pdf">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-file-pdf me-2"></i>Descargar como PDF
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+}
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

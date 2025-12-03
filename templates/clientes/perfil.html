@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-user me-2"></i>Mi Perfil</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Información Personal</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-muted"></i>
+                </div>
+                <h4>{{ cliente.usuario.get_full_name }}</h4>
+                <p class="text-muted">{{ cliente.usuario.email }}</p>
+                
+                <table class="table table-sm table-borderless text-start">
+                    <tr>
+                        <td><strong>CI:</strong></td>
+                        <td>{{ cliente.cedula_identidad }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Teléfono:</strong></td>
+                        <td>{{ cliente.telefono }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Licencia:</strong></td>
+                        <td>{{ cliente.licencia_conducir }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vencimiento:</strong></td>
+                        <td>{{ cliente.fecha_vencimiento_licencia }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Estado:</strong></td>
+                        <td>
+                            {% if cliente.licencia_valida %}
+                                <span class="badge bg-success">Válida</span>
+                            {% else %}
+                                <span class="badge bg-danger">Vencida</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Mis Reservas</h5>
+            </div>
+            <div class="card-body">
+                {% if reservas %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Vehículo</th>
+                                <th>Fechas</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas %}
+                            <tr>
+                                <td>{{ reserva.codigo_reserva }}</td>
+                                <td>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</td>
+                                <td>
+                                    {{ reserva.fecha_inicio|date:"d/m/Y" }} - {{ reserva.fecha_fin|date:"d/m/Y" }}
+                                </td>
+                                <td>Bs. {{ reserva.precio_total }}</td>
+                                <td>
+                                    {% if reserva.estado == 'PENDIENTE' %}
+                                        <span class="badge bg-warning">Pendiente</span>
+                                    {% elif reserva.estado == 'CONFIRMADA' %}
+                                        <span class="badge bg-info">Confirmada</span>
+                                    {% elif reserva.estado == 'ACTIVA' %}
+                                        <span class="badge bg-success">Activa</span>
+                                    {% elif reserva.estado == 'COMPLETADA' %}
+                                        <span class="badge bg-secondary">Completada</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Cancelada</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'descargar_contrato' reserva.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No tienes reservas</h5>
+                    <p class="text-muted">Comienza reservando tu primer vehículo.</p>
+                    <a href="{% url 'crear_reserva' %}" class="btn btn-primary">
+                        <i class="fas fa-car me-1"></i>Reservar Vehículo
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

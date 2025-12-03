@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles Vehículo - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-car me-2"></i>Detalles del Vehículo</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'lista_vehiculos' %}" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i>Volver
+        </a>
+        <a href="{% url 'editar_vehiculo' vehiculo.id %}" class="btn btn-warning me-2">
+            <i class="fas fa-edit me-1"></i>Editar
+        </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal">
+            <i class="fas fa-trash me-1"></i>Eliminar
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">{{ vehiculo.marca }} {{ vehiculo.modelo }} - {{ vehiculo.placa }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Información Básica</h6>
+                        
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Placa:</th>
+                                <td>{{ vehiculo.placa }}</td>
+                            </tr>
+                            <tr>
+                                <th>Marca:</th>
+                                <td>{{ vehiculo.marca }}</td>
+                            </tr>
+                            <tr>
+                                <th>Modelo:</th>
+                                <td>{{ vehiculo.modelo }}</td>
+                            </tr>
+                            <tr>
+                                <th>Año:</th>
+                                <td>{{ vehiculo.año }}</td>
+                            </tr>
+                            <tr>
+                                <th>Tipo:</th>
+                                <td>{{ vehiculo.get_tipo_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>Capacidad:</th>
+                                <td>{{ vehiculo.capacidad_pasajeros }} pasajeros</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Información Adicional</h6>
+                        
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Precio/Día:</th>
+                                <td>Bs. {{ vehiculo.precio_dia }}</td>
+                            </tr>
+                            <tr>
+                                <th>Estado:</th>
+                                <td>
+                                    <span class="badge bg-{% if vehiculo.estado == 'DISPONIBLE' %}success{% elif vehiculo.estado == 'MANTENIMIENTO' %}warning{% else %}danger{% endif %}">
+                                        {{ vehiculo.get_estado_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Kilometraje:</th>
+                                <td>{{ vehiculo.kilometraje|default:"0" }} km</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha Adquisición:</th>
+                                <td>{{ vehiculo.fecha_adquisicion|date:"d/m/Y"|default:"No especificada" }}</td>
+                            </tr>
+                            {% if vehiculo.imagen %}
+                            <tr>
+                                <th>Imagen:</th>
+                                <td>
+                                    <img src="{{ vehiculo.imagen.url }}" alt="{{ vehiculo.marca }} {{ vehiculo.modelo }}" 
+                                         class="img-fluid rounded" style="max-height: 150px;">
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+                
+                {% if vehiculo.descripcion %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-primary border-bottom pb-2">Descripción</h6>
+                        <p class="mb-0">{{ vehiculo.descripcion }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Reservas Recientes -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6 class="text-primary border-bottom pb-2">Reservas Recientes</h6>
+                        {% if reservas %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Cliente</th>
+                                        <th>Fechas</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reserva in reservas %}
+                                    <tr>
+                                        <td>{{ reserva.codigo_reserva }}</td>
+                                        <td>{{ reserva.cliente.usuario.get_full_name }}</td>
+                                        <td>{{ reserva.fecha_inicio|date:"d/m/Y" }} - {{ reserva.fecha_fin|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if reserva.estado == 'ACTIVA' %}success{% elif reserva.estado == 'PENDIENTE' %}warning{% else %}secondary{% endif %}">
+                                                {{ reserva.get_estado_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No hay reservas para este vehículo</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="eliminarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de eliminar el vehículo <strong>{{ vehiculo.marca }} {{ vehiculo.modelo }}</strong> ({{ vehiculo.placa }})?
+                <div class="alert alert-warning mt-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <small>Esta acción no se puede deshacer y eliminará todas las reservas asociadas.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'eliminar_vehiculo' vehiculo.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

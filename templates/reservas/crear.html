@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Reserva - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-calendar-plus me-2"></i>Crear Nueva Reserva</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'lista_reservas' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Volver a Reservas
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Información de la Reserva</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="reservaForm">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2">Datos del Cliente</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Cliente*</label>
+                                {{ form.cliente }}
+                                {% if form.cliente.errors %}
+                                    <div class="text-danger small">{{ form.cliente.errors }}</div>
+                                {% endif %}
+                                <div class="form-text">Selecciona un cliente con licencia válida</div>
+                            </div>
+                            
+                            <!-- Información del Cliente Seleccionado -->
+                            <div id="clienteInfo" class="card bg-light mb-3" style="display: none;">
+                                <div class="card-body py-2">
+                                    <h6 class="card-title mb-1">Información del Cliente</h6>
+                                    <div class="row small">
+                                        <div class="col-6">
+                                            <strong>CI:</strong> <span id="clienteCI">-</span>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Licencia:</strong> <span id="clienteLicencia">-</span>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Teléfono:</strong> <span id="clienteTelefono">-</span>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Estado:</strong> <span id="clienteEstado" class="badge bg-success">Válida</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2">Fechas de Reserva</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Fecha y Hora de Inicio*</label>
+                                {{ form.fecha_inicio }}
+                                {% if form.fecha_inicio.errors %}
+                                    <div class="text-danger small">{{ form.fecha_inicio.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Fecha y Hora de Fin*</label>
+                                {{ form.fecha_fin }}
+                                {% if form.fecha_fin.errors %}
+                                    <div class="text-danger small">{{ form.fecha_fin.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="alert alert-info py-2">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Duración:</strong> <span id="duracionDias">0</span> días
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-primary border-bottom pb-2">Selección de Vehículo</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Vehículo*</label>
+                                {{ form.vehiculo }}
+                                {% if form.vehiculo.errors %}
+                                    <div class="text-danger small">{{ form.vehiculo.errors }}</div>
+                                {% endif %}
+                                <div class="form-text">Solo se muestran vehículos disponibles</div>
+                            </div>
+                            
+                            <!-- Información del Vehículo Seleccionado -->
+                            <div id="vehiculoInfo" class="card bg-light mb-3" style="display: none;">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 text-center">
+                                            <div id="vehiculoImagen" class="bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                                 style="width: 100px; height: 80px;">
+                                                <i class="fas fa-car text-white fa-2x"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong>Marca/Modelo:</strong> <span id="vehiculoModelo">-</span><br>
+                                                    <strong>Tipo:</strong> <span id="vehiculoTipo">-</span><br>
+                                                    <strong>Año:</strong> <span id="vehiculoAnio">-</span>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>Capacidad:</strong> <span id="vehiculoCapacidad">-</span> pasajeros<br>
+                                                    <strong>Precio/Día:</strong> <span id="vehiculoPrecio" class="text-success">-</span><br>
+                                                    <strong>Total:</strong> <span id="vehiculoTotal" class="text-success h5">Bs. 0.00</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-primary border-bottom pb-2">Información Adicional</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Observaciones</label>
+                                {{ form.observaciones }}
+                                <div class="form-text">Información adicional sobre la reserva (opcional)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen de la Reserva -->
+                    <div class="card mt-4 bg-light">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">Resumen de la Reserva</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-user text-primary fa-2x mb-2"></i>
+                                        <div class="small">Cliente</div>
+                                        <strong id="resumenCliente">-</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-car text-success fa-2x mb-2"></i>
+                                        <div class="small">Vehículo</div>
+                                        <strong id="resumenVehiculo">-</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-calendar text-warning fa-2x mb-2"></i>
+                                        <div class="small">Duración</div>
+                                        <strong id="resumenDuracion">0 días</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-dollar-sign text-danger fa-2x mb-2"></i>
+                                        <div class="small">Total</div>
+                                        <strong id="resumenTotal" class="h5">Bs. 0.00</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-success w-100 py-2">
+                                <i class="fas fa-save me-2"></i>Confirmar Reserva
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{% url 'lista_reservas' %}" class="btn btn-outline-secondary w-100 py-2">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Datos de clientes y vehículos (simulados - en producción vendrían del backend)
+    const clientesData = {
+        {% for cliente in form.cliente.field.queryset %}
+        {{ cliente.id }}: {
+            nombre: "{{ cliente.usuario.get_full_name }}",
+            ci: "{{ cliente.cedula_identidad }}",
+            licencia: "{{ cliente.licencia_conducir }}",
+            telefono: "{{ cliente.telefono }}",
+            licenciaValida: {{ cliente.licencia_valida|yesno:"true,false" }}
+        },
+        {% endfor %}
+    };
+    
+    const vehiculosData = {
+        {% for vehiculo in form.vehiculo.field.queryset %}
+        {{ vehiculo.id }}: {
+            modelo: "{{ vehiculo.marca }} {{ vehiculo.modelo }}",
+            tipo: "{{ vehiculo.get_tipo_display }}",
+            anio: "{{ vehiculo.año }}",
+            capacidad: "{{ vehiculo.capacidad_pasajeros }}",
+            precio: "{{ vehiculo.precio_dia }}",
+            imagen: "{% if vehiculo.imagen %}{{ vehiculo.imagen.url }}{% endif %}"
+        },
+        {% endfor %}
+    };
+    
+    // Eventos para actualizar información en tiempo real
+    document.getElementById('id_cliente').addEventListener('change', function() {
+        const clienteId = this.value;
+        const infoDiv = document.getElementById('clienteInfo');
+        
+        if (clienteId && clientesData[clienteId]) {
+            const cliente = clientesData[clienteId];
+            document.getElementById('clienteCI').textContent = cliente.ci;
+            document.getElementById('clienteLicencia').textContent = cliente.licencia;
+            document.getElementById('clienteTelefono').textContent = cliente.telefono;
+            
+            const estadoBadge = document.getElementById('clienteEstado');
+            estadoBadge.textContent = cliente.licenciaValida ? 'Válida' : 'Vencida';
+            estadoBadge.className = cliente.licenciaValida ? 'badge bg-success' : 'badge bg-danger';
+            
+            document.getElementById('resumenCliente').textContent = cliente.nombre;
+            infoDiv.style.display = 'block';
+        } else {
+            infoDiv.style.display = 'none';
+            document.getElementById('resumenCliente').textContent = '-';
+        }
+    });
+    
+    document.getElementById('id_vehiculo').addEventListener('change', function() {
+        const vehiculoId = this.value;
+        const infoDiv = document.getElementById('vehiculoInfo');
+        
+        if (vehiculoId && vehiculosData[vehiculoId]) {
+            const vehiculo = vehiculosData[vehiculoId];
+            document.getElementById('vehiculoModelo').textContent = vehiculo.modelo;
+            document.getElementById('vehiculoTipo').textContent = vehiculo.tipo;
+            document.getElementById('vehiculoAnio').textContent = vehiculo.anio;
+            document.getElementById('vehiculoCapacidad').textContent = vehiculo.capacidad;
+            document.getElementById('vehiculoPrecio').textContent = `Bs. ${vehiculo.precio}`;
+            
+            const imagenDiv = document.getElementById('vehiculoImagen');
+            if (vehiculo.imagen) {
+                imagenDiv.innerHTML = `<img src="${vehiculo.imagen}" alt="${vehiculo.modelo}" 
+                                      style="width: 100%; height: 100%; object-fit: cover;" class="rounded">`;
+            } else {
+                imagenDiv.innerHTML = '<i class="fas fa-car text-white fa-2x"></i>';
+            }
+            
+            document.getElementById('resumenVehiculo').textContent = vehiculo.modelo;
+            calcularTotal();
+            infoDiv.style.display = 'block';
+        } else {
+            infoDiv.style.display = 'none';
+            document.getElementById('resumenVehiculo').textContent = '-';
+        }
+    });
+    
+    // Calcular duración y total
+    function calcularDuracion() {
+        const inicio = document.getElementById('id_fecha_inicio').value;
+        const fin = document.getElementById('id_fecha_fin').value;
+        
+        if (inicio && fin) {
+            const inicioDate = new Date(inicio);
+            const finDate = new Date(fin);
+            const diffTime = Math.abs(finDate - inicioDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('duracionDias').textContent = diffDays;
+            document.getElementById('resumenDuracion').textContent = `${diffDays} día${diffDays !== 1 ? 's' : ''}`;
+            calcularTotal(diffDays);
+        }
+    }
+    
+    function calcularTotal(dias) {
+        const vehiculoId = document.getElementById('id_vehiculo').value;
+        if (vehiculoId && vehiculosData[vehiculoId] && dias) {
+            const precio = parseFloat(vehiculosData[vehiculoId].precio);
+            const total = precio * dias;
+            
+            document.getElementById('vehiculoTotal').textContent = `Bs. ${total.toFixed(2)}`;
+            document.getElementById('resumenTotal').textContent = `Bs. ${total.toFixed(2)}`;
+        }
+    }
+    
+    document.getElementById('id_fecha_inicio').addEventListener('change', calcularDuracion);
+    document.getElementById('id_fecha_fin').addEventListener('change', calcularDuracion);
+    
+    // Establecer fecha mínima como hoy
+    const today = new Date().toISOString().slice(0, 16);
+    document.getElementById('id_fecha_inicio').min = today;
+    document.getElementById('id_fecha_fin').min = today;
+});
+</script>
+
+<style>
+    input, select, textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}

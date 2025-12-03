@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles Empleado - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-user-tie me-2"></i>Detalles del Empleado</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'lista_empleados' %}" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i>Volver
+        </a>
+        <a href="{% url 'editar_empleado' empleado.id %}" class="btn btn-warning me-2">
+            <i class="fas fa-edit me-1"></i>Editar
+        </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal">
+            <i class="fas fa-trash me-1"></i>Eliminar
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Información del Empleado: {{ empleado.usuario.get_full_name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Información de Usuario</h6>
+                        
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Usuario:</th>
+                                <td>{{ empleado.usuario.username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>{{ empleado.usuario.email }}</td>
+                            </tr>
+                            <tr>
+                                <th>Nombres:</th>
+                                <td>{{ empleado.usuario.first_name|default:"No especificado" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Apellidos:</th>
+                                <td>{{ empleado.usuario.last_name|default:"No especificado" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Información Personal</h6>
+                        
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Teléfono:</th>
+                                <td>{{ empleado.telefono|default:"No especificado" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Dirección:</th>
+                                <td>{{ empleado.direccion|default:"No especificado" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Estado:</th>
+                                <td>
+                                    {% if empleado.activo %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Fecha Registro:</th>
+                                <td>{{ empleado.fecha_registro|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Acciones -->
+                <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                    <div class="me-2">
+                        {% if empleado.activo %}
+                        <form method="post" action="{% url 'desactivar_empleado' empleado.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-warning" 
+                                    onclick="return confirm('¿Estás seguro de desactivar a {{ empleado.usuario.get_full_name }}?')">
+                                <i class="fas fa-user-slash me-2"></i>Desactivar
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'activar_empleado' empleado.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-success" 
+                                    onclick="return confirm('¿Estás seguro de activar a {{ empleado.usuario.get_full_name }}?')">
+                                <i class="fas fa-user-check me-2"></i>Activar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <button type="button" class="btn btn-outline-danger" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#eliminarModal">
+                            <i class="fas fa-trash me-2"></i>Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="eliminarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de eliminar permanentemente al empleado <strong>{{ empleado.usuario.get_full_name }}</strong>?
+                <div class="alert alert-warning mt-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <small>Esta acción eliminará también su usuario de acceso y no se puede deshacer.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'eliminar_empleado' empleado.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

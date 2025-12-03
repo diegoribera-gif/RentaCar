@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Empleado - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-user-times me-2 text-danger"></i>Eliminar Empleado</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'detalle_empleado' empleado.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Volver
+        </a>
+    </div>
+</div>
+
+<div class="card border-danger">
+    <div class="card-header bg-danger text-white">
+        <h5 class="card-title mb-0">Confirmar Eliminación Permanente</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>¡Advertencia!</h4>
+            <p>Estás a punto de eliminar permanentemente al empleado:</p>
+            <hr>
+            <h5 class="mb-0">{{ empleado.usuario.get_full_name }}</h5>
+            <p class="mb-1">{{ empleado.usuario.email }}</p>
+            <p class="mb-0">Cargo: {{ empleado.cargo }}</p>
+        </div>
+        
+        <div class="alert alert-warning">
+            <h6><i class="fas fa-exclamation-circle me-2"></i>Esta acción eliminará:</h6>
+            <ul class="mb-0">
+                <li>El registro del empleado</li>
+                <li>El usuario de acceso al sistema</li>
+                <li>Todos los datos asociados</li>
+            </ul>
+        </div>
+        
+        {% if empleado.reservas_gestionadas %}
+        <div class="alert alert-info">
+            <h6><i class="fas fa-info-circle me-2"></i>Información:</h6>
+            <p class="mb-0">Este empleado tiene {{ empleado.reservas_gestionadas }} reservas gestionadas. 
+                Considera desactivarlo en lugar de eliminarlo para mantener el historial.</p>
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'detalle_empleado' empleado.id %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Confirmar Eliminación Permanente
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

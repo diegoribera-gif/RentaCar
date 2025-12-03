@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Vehículo - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-car me-2"></i>Editar Vehículo</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'detalle_vehiculo' vehiculo.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Cancelar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="card-title mb-0">Editar: {{ vehiculo.marca }} {{ vehiculo.modelo }} - {{ vehiculo.placa }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-warning border-bottom pb-2">Datos Básicos</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Placa <span class="text-danger">*</span></label>
+                                {{ form.placa }}
+                                {% if form.placa.errors %}
+                                    <div class="text-danger small">{{ form.placa.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Marca <span class="text-danger">*</span></label>
+                                    {{ form.marca }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Modelo <span class="text-danger">*</span></label>
+                                    {{ form.modelo }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Año <span class="text-danger">*</span></label>
+                                    {{ form.año }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tipo <span class="text-danger">*</span></label>
+                                    {{ form.tipo }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Capacidad <span class="text-danger">*</span></label>
+                                    {{ form.capacidad_pasajeros }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Precio/Día (Bs.) <span class="text-danger">*</span></label>
+                                    {{ form.precio_dia }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-warning border-bottom pb-2">Información Adicional</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Estado <span class="text-danger">*</span></label>
+                                {{ form.estado }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Kilometraje</label>
+                                {{ form.kilometraje }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Imagen del Vehículo</label>
+                                {{ form.imagen }}
+                                {% if form.imagen.errors %}
+                                    <div class="text-danger small">{{ form.imagen.errors }}</div>
+                                {% endif %}
+                                {% if vehiculo.imagen %}
+                                <div class="mt-2">
+                                    <img src="{{ vehiculo.imagen.url }}" alt="Imagen actual" 
+                                         class="img-fluid rounded" style="max-height: 100px;">
+                                    <p class="text-muted small mt-1">Imagen actual</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                {{ form.descripcion }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Adquisición</label>
+                                {{ form.fecha_adquisicion }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <a href="{% url 'detalle_vehiculo' vehiculo.id %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

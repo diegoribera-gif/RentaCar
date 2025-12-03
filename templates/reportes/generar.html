@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-chart-bar me-2"></i>Generar Reportes</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Configuración del Reporte</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Reporte*</label>
+                                <select class="form-select" name="tipo" required>
+                                    <option value="">Selecciona un tipo de reporte</option>
+                                    <option value="FINANCIERO">Reporte Financiero</option>
+                                    <option value="RESERVAS">Reporte de Reservas</option>
+                                    <option value="VEHICULOS">Reporte de Vehículos</option>
+                                    <option value="CLIENTES">Reporte de Clientes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Formato de Salida</label>
+                                <select class="form-select" name="formato">
+                                    <option value="web">Vista Web</option>
+                                    <option value="pdf">Documento PDF</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Inicio*</label>
+                                <input type="date" class="form-control" name="fecha_inicio" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Fin*</label>
+                                <input type="date" class="form-control" name="fecha_fin" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Filtros Adicionales</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="solo_completadas" id="solo_completadas">
+                            <label class="form-check-label" for="solo_completadas">
+                                Solo reservas completadas
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="incluir_detalles" id="incluir_detalles" checked>
+                            <label class="form-check-label" for="incluir_detalles">
+                                Incluir detalles completos
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success py-2">
+                            <i class="fas fa-cog me-2"></i>Generar Reporte
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tipos de Reportes Disponibles -->
+        <div class="row mt-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>Reporte Financiero</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Análisis detallado de ingresos, gastos y rentabilidad del negocio.</p>
+                        <ul class="small text-muted">
+                            <li>Ingresos por período</li>
+                            <li>Vehículos más rentables</li>
+                            <li>Tendencias de crecimiento</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="card-title mb-0"><i class="fas fa-calendar-alt me-2"></i>Reporte de Reservas</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Estadísticas y análisis del comportamiento de las reservas.</p>
+                        <ul class="small text-muted">
+                            <li>Tasa de ocupación</li>
+                            <li>Reservas por estado</li>
+                            <li>Estacionalidad</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-warning">
+                    <div class="card-header bg-warning text-white">
+                        <h6 class="card-title mb-0"><i class="fas fa-car me-2"></i>Reporte de Vehículos</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Información sobre el estado y rendimiento de la flota.</p>
+                        <ul class="small text-muted">
+                            <li>Vehículos más rentados</li>
+                            <li>Disponibilidad</li>
+                            <li>Mantenimiento</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="card-title mb-0"><i class="fas fa-users me-2"></i>Reporte de Clientes</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Análisis del comportamiento y preferencias de los clientes.</p>
+                        <ul class="small text-muted">
+                            <li>Clientes frecuentes</li>
+                            <li>Preferencias por tipo de vehículo</li>
+                            <li>Fidelización</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Establecer fechas por defecto (último mes)
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+    
+    document.querySelector('input[name="fecha_inicio"]').value = lastMonth.toISOString().split('T')[0];
+    document.querySelector('input[name="fecha_fin"]').value = today.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

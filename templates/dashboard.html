@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - RentaCar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h1>
+    {% if user_role == 'administrador' %}
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'crear_empleado' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-1"></i>Nuevo Empleado
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Información del Usuario -->
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>Bienvenido, {{ user.get_full_name|default:user.username }}!</strong>
+    Estás conectado como 
+    {% if user_role == 'administrador' %}
+        <strong>Administrador</strong> - Tienes acceso completo al sistema.
+    {% elif user_role == 'empleado' %}
+        <strong>Empleado</strong> - Puedes gestionar clientes, vehículos y reservas.
+    {% else %}
+        <strong>Cliente</strong> - Puedes ver vehículos disponibles, crear reservas y consultar tus contratos.
+    {% endif %}
+</div>
+
+{% if user_role == 'administrador' or user_role == 'empleado' %}
+<!-- ========== DASHBOARD PARA ADMINISTRADORES Y EMPLEADOS (MANTENER EXISTENTE) ========== -->
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-primary card-stat">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h4>{{ total_clientes }}</h4>
+                        <p class="mb-0">Clientes</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-success card-stat">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h4>{{ total_vehiculos }}</h4>
+                        <p class="mb-0">Vehículos</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-car fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-warning card-stat">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h4>{{ reservas_activas }}</h4>
+                        <p class="mb-0">Reservas Activas</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-info card-stat">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h4>Bs. {{ ingresos_mes }}</h4>
+                        <p class="mb-0">Ingresos Mes</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Rápidas para Administrador -->
+{% if user_role == 'administrador' %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'crear_empleado' %}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-user-plus fa-2x mb-2"></i><br>
+                            Nuevo Empleado
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'crear_cliente' %}" class="btn btn-outline-success w-100 py-3">
+                            <i class="fas fa-user-plus fa-2x mb-2"></i><br>
+                            Nuevo Cliente
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'crear_vehiculo' %}" class="btn btn-outline-warning w-100 py-3">
+                            <i class="fas fa-car fa-2x mb-2"></i><br>
+                            Nuevo Vehículo
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'crear_reserva' %}" class="btn btn-outline-info w-100 py-3">
+                            <i class="fas fa-calendar-plus fa-2x mb-2"></i><br>
+                            Nueva Reserva
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'reportes' %}" class="btn btn-outline-danger w-100 py-3">
+                            <i class="fas fa-chart-bar fa-2x mb-2"></i><br>
+                            Ver Reportes
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'lista_empleados' %}" class="btn btn-outline-secondary w-100 py-3">
+                            <i class="fas fa-users-cog fa-2x mb-2"></i><br>
+                            Gestionar Empleados
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Reservas Recientes -->
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Reservas Recientes</h5>
+            </div>
+            <div class="card-body">
+                {% if reservas_recientes %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Cliente</th>
+                                <th>Vehículo</th>
+                                <th>Fecha Inicio</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas_recientes %}
+                            <tr>
+                                <td>{{ reserva.codigo_reserva }}</td>
+                                <td>{{ reserva.cliente.usuario.get_full_name }}</td>
+                                <td>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</td>
+                                <td>{{ reserva.fecha_inicio|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if reserva.estado == 'ACTIVA' %}success{% elif reserva.estado == 'PENDIENTE' %}warning{% else %}secondary{% endif %}">
+                                        {{ reserva.get_estado_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No hay reservas recientes</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <p class="text-muted">No hay reservas recientes</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Vehículos Populares</h5>
+            </div>
+            <div class="card-body">
+                {% if vehiculos_populares %}
+                {% for vehiculo in vehiculos_populares %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0">{{ vehiculo.marca }} {{ vehiculo.modelo }}</h6>
+                        <small class="text-muted">{{ vehiculo.num_reservas }} reservas</small>
+                    </div>
+                    <span class="badge bg-primary">{{ vehiculo.placa }}</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-center text-muted">No hay datos de vehículos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- ========== DASHBOARD PARA CLIENTES (NUEVO) ========== -->
+<div class="row">
+    <!-- Tarjetas de estadísticas para cliente -->
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-primary card-stat">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h4>{{ reservas_activas }}</h4>
+                        <p class="mb-0">Mis Reservas Activas</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-primary-dark py-2">
+                <a href="{% url 'lista_reservas' %}" class="text-white text-decoration-none small">
+                    <i class="fas fa-eye me-1"></i>Ver todas mis reservas
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-success card-stat">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h4>{{ vehiculos_disponibles }}</h4>
+                        <p class="mb-0">Vehículos Disponibles</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-car fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-success-dark py-2">
+                <a href="{% url 'disponibilidad_vehiculos' %}" class="text-white text-decoration-none small">
+                    <i class="fas fa-search me-1"></i>Buscar vehículos
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-warning card-stat">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h4>{{ contratos_disponibles }}</h4>
+                        <p class="mb-0">Contratos Disponibles</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-file-contract fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-warning-dark py-2">
+                <a href="#misContratos" class="text-white text-decoration-none small">
+                    <i class="fas fa-file-download me-1"></i>Ver mis contratos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Rápidas para Clientes -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'disponibilidad_vehiculos' %}" class="btn btn-outline-primary w-100 py-4">
+                            <i class="fas fa-search fa-2x mb-2"></i><br>
+                            <h5>Buscar Vehículos</h5>
+                            <p class="small mb-0">Consulta disponibilidad en tiempo real</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'crear_reserva' %}" class="btn btn-outline-success w-100 py-4">
+                            <i class="fas fa-calendar-plus fa-2x mb-2"></i><br>
+                            <h5>Nueva Reserva</h5>
+                            <p class="small mb-0">Reserva tu vehículo ahora</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'perfil_cliente' %}" class="btn btn-outline-info w-100 py-4">
+                            <i class="fas fa-user-edit fa-2x mb-2"></i><br>
+                            <h5>Mi Perfil</h5>
+                            <p class="small mb-0">Actualiza tu información personal</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mis Reservas Recientes -->
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="card-title mb-0">Mis Reservas Recientes</h5>
+    </div>
+    <div class="card-body">
+        {% if mis_reservas %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Vehículo</th>
+                        <th>Fechas</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in mis_reservas %}
+                    <tr>
+                        <td>{{ reserva.codigo_reserva }}</td>
+                        <td>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</td>
+                        <td>{{ reserva.fecha_inicio|date:"d/m/Y" }} - {{ reserva.fecha_fin|date:"d/m/Y" }}</td>
+                        <td>Bs. {{ reserva.precio_total }}</td>
+                        <td>
+                            <span class="badge bg-{% if reserva.estado == 'ACTIVA' %}success{% elif reserva.estado == 'PENDIENTE' %}warning{% else %}secondary{% endif %}">
+                                {{ reserva.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if reserva.contrato %}
+                            <a href="{% url 'descargar_contrato' reserva.id %}" class="btn btn-sm btn-outline-primary" title="Descargar contrato">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No tienes reservas</h5>
+            <p class="text-muted">Comienza reservando tu primer vehículo.</p>
+            <a href="{% url 'crear_reserva' %}" class="btn btn-primary">
+                <i class="fas fa-car me-1"></i>Reservar Vehículo
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Sección de Contratos (si tiene reservas con contrato) -->
+<div id="misContratos" class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="card-title mb-0">Mis Contratos</h5>
+    </div>
+    <div class="card-body">
+        {% if contratos_disponibles > 0 %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Reserva</th>
+                        <th>Vehículo</th>
+                        <th>Fecha Contrato</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in mis_reservas %}
+                    {% if reserva.contrato %}
+                    <tr>
+                        <td>{{ reserva.codigo_reserva }}</td>
+                        <td>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</td>
+                        <td>{{ reserva.fecha_reserva|date:"d/m/Y" }}</td>
+                        <td>
+                            <span class="badge bg-{% if reserva.estado == 'ACTIVA' %}success{% else %}secondary{% endif %}">
+                                {{ reserva.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'descargar_contrato' reserva.id %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-download me-1"></i>Descargar
+                            </a>
+                            <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-eye me-1"></i>Ver Reserva
+                            </a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No tienes contratos aún</h5>
+            <p class="text-muted">Los contratos se generan automáticamente cuando confirmas una reserva.</p>
+            <a href="{% url 'crear_reserva' %}" class="btn btn-primary">
+                <i class="fas fa-calendar-plus me-1"></i>Crear mi primera reserva
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
