@@ -1,18 +1,16 @@
 {
-  "functions": {
-    "VercelApp/wsgi.py": {
-      "runtime": "python3.9",
-      "maxDuration": 10
-    }
-  },
-  "routes": [
+  "builds": [
     {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
+      "src": "VercelApp/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
     {
       "src": "/(.*)",
       "dest": "VercelApp/wsgi.py"
     }
-  ]
+  ],
+  "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate",
+  "installCommand": "pip install -r requirements.txt"
 }
