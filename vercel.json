@@ -1,17 +1,10 @@
 {
-  "buildCommand": "pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput",
-  "outputDirectory": "staticfiles",
-  "installCommand": "pip install -r requirements.txt",
-  "builds": [
-    {
-      "src": "VercelApp/wsgi.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "15mb",
-        "runtime": "python3.9"
-      }
+  "functions": {
+    "VercelApp/wsgi.py": {
+      "runtime": "python3.9",
+      "maxDuration": 10
     }
-  ],
+  },
   "routes": [
     {
       "src": "/static/(.*)",
