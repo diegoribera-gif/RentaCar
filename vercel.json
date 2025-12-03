@@ -11,11 +11,14 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "VercelApp/wsgi.py"
     }
   ],
-  "env": {
-    "PYTHONPATH": "/var/task"
-  }
+  "buildCommand": "pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput",
+  "installCommand": "pip install -r requirements.txt"
 }
