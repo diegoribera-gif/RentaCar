@@ -20,32 +20,45 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 IS_VERCEL = "VERCEL" in os.environ
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-vb+j(1#bl18r(lqm3w-rnp!fbdwb9)x)e4j9!7!3#&)n!5cb3$")
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True' if IS_VERCEL else True
-
-
+# Configuración de base de datos
 if IS_VERCEL:
-    # En Vercel: debe estar en variables de entorno
+    # ✅ USAR DATABASE_URL COMPLETA de variables de entorno
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    
+    if DATABASE_URL:
+        # Configurar base de datos desde la URL
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+                ssl_require=True
+            )
+        }
+    else:
+        # Si no hay DATABASE_URL, usar variables separadas
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('POSTGRES_DATABASE', 'neondb'),
+                'USER': os.environ.get('POSTGRES_USER', 'neondb_owner'),
+                'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+                'HOST': os.environ.get('POSTGRES_HOST', 'ep-steep-boat-a4php2pb-pooler.us-east-1.aws.neon.tech'),
+                'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+                'OPTIONS': {
+                    'sslmode': 'require',
+                },
+            }
+        }
+    
+    # Resto de configuración para Vercel
+    DEBUG = os.environ.get('DEBUG', 'False') == 'True'
     SECRET_KEY = os.environ.get('SECRET_KEY')
+    
     if not SECRET_KEY:
-        raise ValueError("SECRET_KEY no está configurada en Vercel")
-else:
-    # En desarrollo: usar una clave por defecto (NO usar en producción)
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key-12345-change-this')
+        raise ValueError("SECRET_KEY no configurada en Vercel")
 
-# Hosts permitidos
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-
-if IS_VERCEL:
-    ALLOWED_HOSTS.extend(['.vercel.app', '.now.sh'])
-else:
-    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost'])
+['.vercel.app', '.now.sh', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -179,3 +192,6 @@ if not DEBUG and IS_VERCEL:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+   # WhiteNoise para archivos estáticos
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
