@@ -1,4 +1,7 @@
 {
+  "buildCommand": "pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput",
+  "outputDirectory": "staticfiles",
+  "installCommand": "pip install -r requirements.txt",
   "builds": [
     {
       "src": "VercelApp/wsgi.py",
@@ -18,7 +21,5 @@
       "src": "/(.*)",
       "dest": "VercelApp/wsgi.py"
     }
-  ],
-  "buildCommand": "pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput",
-  "installCommand": "pip install -r requirements.txt"
+  ]
 }
